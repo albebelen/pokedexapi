@@ -1,0 +1,44 @@
+# Build directories
+[Bb]in/
+[Oo]bj/
+[Bb]uild/
+[Ll]og/
+[Ll]ogs/
+publish/
+
+# VSCode
+.vscode/
+
+# Auto-generated files
+Generated\ Files/
+*.cache
+*.FileListAbsolute.txt
++.AssemblyInfo.cs
+
+# NuGet Packages
+packages/
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+*.nuget.props
+*.nuget.targets
+project.assets.json
+*.deps.json
+*.nuget.dgspec.json
+
+# DLLs and other compiled binaries
+*.dll
+*.exe
+*.app
+*.so
+*.dylib
+*.lib
+
+
+# Optional: keep libraries if needed (uncomment)
+# !/libs/*.dll
+
+# =========================
+#  End of .gitignore
+# =========================
