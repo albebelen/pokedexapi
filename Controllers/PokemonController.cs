@@ -23,31 +23,52 @@ public class PokemonController : ControllerBase
 
         using (HttpClient client = new HttpClient())
         {
-            string descr = ""; 
+            string descr = "";
 
-            HttpResponseMessage res = await client.GetAsync(_url + name);
-            var jsonRes = JObject.Parse(await res.Content.ReadAsStringAsync());
-            var list = jsonRes["flavor_text_entries"].ToList();
-            
-            for (int i = 0; i < list.Count; i++)
+            try
             {
-                if (list[i]["language"]["name"].ToString() == "en") // get the first english description
+                HttpResponseMessage res = await client.GetAsync(_url + name);
+
+                if ((int)res.StatusCode == 200)
                 {
-                    descr = list[i]["flavor_text"].ToString();
-                    break;
+                    var jsonRes = JObject.Parse(await res.Content.ReadAsStringAsync());
+                    var list = jsonRes["flavor_text_entries"].ToList();
+
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        if (list[i]["language"]["name"].ToString() == "en") // get the first english description
+                        {
+                            descr = list[i]["flavor_text"].ToString();
+                            break;
+                        }
+                    }
+
+                    pokemon = new Pokemon()
+                    {
+                        Id = (int)jsonRes["id"],
+                        Name = jsonRes["name"].ToString(),
+                        Habitat = jsonRes["habitat"]["name"].ToString(),
+                        Description = descr,
+                        IsLegendary = (bool)jsonRes["is_legendary"]
+                    };
+                }
+                else
+                {
+                    pokemon = new Pokemon()
+                    {
+                        Id = null,
+                        Name = String.Empty,
+                        Habitat = String.Empty,
+                        Description = String.Empty,
+                        IsLegendary = null
+                    };
                 }
             }
-
-            pokemon = new Pokemon()
+            catch (Exception ex)
             {
-                Id = (int)jsonRes["id"],
-                Name = jsonRes["name"].ToString(),
-                Habitat = jsonRes["habitat"]["name"].ToString(),
-                Description = descr, 
-                IsLegendary = (bool)jsonRes["is_legendary"]
-            };
+                throw ex;
+            }
+            return pokemon; 
         }
-
-        return pokemon;
     }
 }
