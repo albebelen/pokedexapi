@@ -10,10 +10,9 @@ publish/
 .vscode/
 
 # Auto-generated files
-Generated\ Files/
 *.cache
 *.FileListAbsolute.txt
-+.AssemblyInfo.cs
+*.AssemblyInfo.cs
 
 # NuGet Packages
 packages/
