@@ -9,6 +9,7 @@ namespace PokedexApi.Controllers;
 public class PokemonController : ControllerBase
 {
     private readonly ILogger<PokemonController> _logger;
+    private readonly string _url = "https://pokeapi.co/api/v2/pokemon-species/";
 
     public PokemonController(ILogger<PokemonController> logger)
     {
@@ -19,20 +20,32 @@ public class PokemonController : ControllerBase
     public async Task<Pokemon> GetPokemon(string name) 
     {
         Pokemon pokemon;
-        string url = $"https://pokeapi.co/api/v2/pokemon-species/{name}"; // global ? 
 
-        using (HttpClient client = new HttpClient()) 
+        using (HttpClient client = new HttpClient())
         {
-            HttpResponseMessage res = await client.GetAsync(url);
+            string descr = ""; 
+
+            HttpResponseMessage res = await client.GetAsync(_url + name);
             var jsonRes = JObject.Parse(await res.Content.ReadAsStringAsync());
+            var list = jsonRes["flavor_text_entries"].ToList();
+            
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i]["language"]["name"].ToString() == "en") // get the first english description
+                {
+                    descr = list[i]["flavor_text"].ToString();
+                    break;
+                }
+            }
+
             pokemon = new Pokemon()
             {
-                Id = (int) jsonRes["id"],
+                Id = (int)jsonRes["id"],
                 Name = jsonRes["name"].ToString(),
                 Habitat = jsonRes["habitat"]["name"].ToString(),
-                Description = jsonRes["flavor_text_entries"][0]["flavor_text"].ToString(),
-                IsLegendary = (bool) jsonRes["is_legendary"]
-            };  
+                Description = descr, 
+                IsLegendary = (bool)jsonRes["is_legendary"]
+            };
         }
 
         return pokemon;
