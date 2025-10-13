@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using PokedexApi.Models;
 using Newtonsoft.Json.Linq;
 using System.Text;
+using PokedexApi.Service;
 
 namespace PokedexApi.Controllers;
 
@@ -10,129 +11,45 @@ namespace PokedexApi.Controllers;
 public class PokemonController : ControllerBase
 {
     private readonly ILogger<PokemonController> _logger;
-    private readonly string _url = "https://pokeapi.co/api/v2/pokemon-species/";
+    private readonly PokemonService _pokemonService;
     private readonly string _urlTranslator = "https://api.funtranslations.com/translate/"; 
 
-    public PokemonController(ILogger<PokemonController> logger)
+    public PokemonController(ILogger<PokemonController> logger, PokemonService pokemonService)
     {
         _logger = logger;
+        _pokemonService = pokemonService;
     }
 
     [HttpGet("{name}")]
-    public async Task<Pokemon> GetPokemon(string name)
+    public async Task<Pokemon> GetPokemon(string name) // todo: refactor
     {
-        Pokemon pokemon;
-
-        using (HttpClient client = new HttpClient())
-        {
-            string descr = "";
-
-            try
-            {
-                HttpResponseMessage res = await client.GetAsync(_url + name);
-
-                if ((int)res.StatusCode == 200)
-                {
-                    var jsonRes = JObject.Parse(await res.Content.ReadAsStringAsync());
-                    var list = jsonRes["flavor_text_entries"].ToList();
-
-                    for (int i = 0; i < list.Count; i++)
-                    {
-                        if (list[i]["language"]["name"].ToString() == "en") // get the first english description
-                        {
-                            descr = list[i]["flavor_text"].ToString();
-                            break;
-                        }
-                    }
-
-                    pokemon = new Pokemon()
-                    {
-                        Id = (int)jsonRes["id"],
-                        Name = jsonRes["name"].ToString(),
-                        Habitat = jsonRes["habitat"]["name"].ToString(),
-                        Description = descr,
-                        IsLegendary = (bool)jsonRes["is_legendary"]
-                    };
-                }
-                else
-                {
-                    pokemon = new Pokemon()
-                    {
-                        Id = null,
-                        Name = String.Empty,
-                        Habitat = String.Empty,
-                        Description = String.Empty,
-                        IsLegendary = null
-                    };
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            return pokemon;
-        }
+        Pokemon pokemon = await _pokemonService.GetPokemon(name);
+        return pokemon;
     }
     
     [HttpGet("translated/{name}")]
     public async Task<Pokemon> GetTranslatedPokemon(string name)
     {
-        Pokemon pokemon;
+        Pokemon pokemon = await _pokemonService.GetPokemon(name);
 
         using (HttpClient client = new HttpClient())
         {
-            string descr = "";
-
             try
             {
-                HttpResponseMessage res = await client.GetAsync(_url + name);
-
-                if ((int)res.StatusCode == 200)
-                {
-                    var jsonRes = JObject.Parse(await res.Content.ReadAsStringAsync());
-                    var list = jsonRes["flavor_text_entries"].ToList();
-
-                    for (int i = 0; i < list.Count; i++)
-                    {
-                        if (list[i]["language"]["name"].ToString() == "en") // get the first english description
-                        {
-                            descr = list[i]["flavor_text"].ToString();
-                            break;
-                        }
-                    }
-
-                    pokemon = new Pokemon()
-                    {
-                        Id = (int)jsonRes["id"],
-                        Name = jsonRes["name"].ToString(),
-                        Habitat = jsonRes["habitat"]["name"].ToString(),
-                        Description = descr,
-                        IsLegendary = (bool)jsonRes["is_legendary"]
-                    };
-
-                    string param = $"text={pokemon.Description}";
-                    HttpContent content = new StringContent(param, Encoding.UTF8, "application/json");
-
-
-                    if (pokemon.Habitat.ToLower() == "cave" || pokemon.IsLegendary == true) //yoda          
+                string param = $"text={pokemon.Description}";
+                HttpResponseMessage res;
+                HttpContent content = new StringContent(param, Encoding.UTF8, "application/json");
+                                          
+                if (pokemon.Habitat.ToLower() == "cave" || pokemon.IsLegendary == true) //yoda          
                         res = await client.PostAsync(_urlTranslator + "yoda.json?" + param, content);
                     else
 
                         res = await client.PostAsync(_urlTranslator + "shakespeare.json?" + param, content);
 
-                    jsonRes = JObject.Parse(await res.Content.ReadAsStringAsync());
-                    pokemon.Description = jsonRes["contents"]["translated"].ToString();
-                }
-                else
+                if ((int)res.StatusCode == 200)
                 {
-                    pokemon = new Pokemon()
-                    {
-                        Id = null,
-                        Name = String.Empty,
-                        Habitat = String.Empty,
-                        Description = String.Empty,
-                        IsLegendary = null
-                    };
+                    var jsonRes = JObject.Parse(await res.Content.ReadAsStringAsync());
+                    pokemon.Description = jsonRes["contents"]["translated"].ToString();
                 }
             }
             catch (Exception ex)
