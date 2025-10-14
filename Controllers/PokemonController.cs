@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PokedexApi.Models;
 using Newtonsoft.Json.Linq;
-using System.Text;
+using System.Net;
 using PokedexApi.Service;
 
 namespace PokedexApi.Controllers;
@@ -36,15 +36,16 @@ public class PokemonController : ControllerBase
         {
             try
             {
-                string param = $"text={pokemon.Description}";
+                string param = $"text={WebUtility.UrlEncode(pokemon.Description).Replace("%0C", "%20").Replace("+", "%20").Replace("%0A", "%20")}";
                 HttpResponseMessage res;
-                HttpContent content = new StringContent(param, Encoding.UTF8, "application/json");
+                //HttpContent content = new StringContent(param, Encoding.UTF8, "application/json");
                                           
                 if (pokemon.Habitat.ToLower() == "cave" || pokemon.IsLegendary == true) //yoda          
-                        res = await client.PostAsync(_urlTranslator + "yoda.json?" + param, content);
+                        //res = await client.PostAsync(_urlTranslator + "yoda.json?" + param, content);
+                        res = await client.GetAsync(_urlTranslator + "yoda.json?" + param);
                     else
 
-                        res = await client.PostAsync(_urlTranslator + "shakespeare.json?" + param, content);
+                        res = await client.GetAsync(_urlTranslator + "shakespeare.json?" + param);
 
                 if ((int)res.StatusCode == 200)
                 {
