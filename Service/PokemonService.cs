@@ -45,7 +45,7 @@ public class PokemonService
                     {
                         Id = (int)jsonRes["id"],
                         Name = jsonRes["name"].ToString(),
-                        Habitat = jsonRes["habitat"]["name"].ToString(),
+                        Habitat = jsonRes["habitat"].ToArray().Count() == 0 ? "" : jsonRes["habitat"]["name"].ToString(),
                         Description = descr,
                         IsLegendary = (bool)jsonRes["is_legendary"]
                     };
