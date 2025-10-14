@@ -1,6 +1,41 @@
 @PokedexApi_HostAddress = http://localhost:5161
 
-GET {{PokedexApi_HostAddress}}/weatherforecast/
+GET {{PokedexApi_HostAddress}}/pokemon/mewtwo
+Accept: application/json
+
+###
+
+GET {{PokedexApi_HostAddress}}/pokemon/mewpp
+Accept: application/json
+
+###
+
+GET {{PokedexApi_HostAddress}}/pokemon/translated/mewtwo
+Accept: application/json
+
+###
+
+GET {{PokedexApi_HostAddress}}/pokemon/translated/dittoo
+Accept: application/json
+
+###
+
+
+GET {{PokedexApi_HostAddress}}/pokemon/aegislash
+Accept: application/json
+
+###
+GET {{PokedexApi_HostAddress}}/pokemon/translated/aegislash
+Accept: application/json
+
+###
+
+GET {{PokedexApi_HostAddress}}/pokemon/pikachu
+Accept: application/json
+
+###
+
+GET {{PokedexApi_HostAddress}}/pokemon/translated/ogerpon
 Accept: application/json
 
 ###
