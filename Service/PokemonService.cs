@@ -7,7 +7,7 @@ namespace PokedexApi.Service;
 
 public class PokemonService
 {
-    private readonly ILogger<PokemonService> _logger; // todo: do i need this logger
+    private readonly ILogger<PokemonService> _logger; 
     private readonly string _url = "https://pokeapi.co/api/v2/pokemon-species/";
 
     public PokemonService(ILogger<PokemonService> logger)
@@ -15,7 +15,7 @@ public class PokemonService
         _logger = logger;
     }
 
-    public async Task<Pokemon> GetPokemon(string name) // todo: refactor
+    public async Task<Pokemon> GetPokemon(string name)
     {
         Pokemon pokemon;
 

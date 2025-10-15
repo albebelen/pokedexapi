@@ -21,7 +21,7 @@ public class PokemonController : ControllerBase
     }
 
     [HttpGet("{name}")]
-    public async Task<Pokemon> GetPokemon(string name) // todo: refactor
+    public async Task<Pokemon> GetPokemon(string name) 
     {
         Pokemon pokemon = await _pokemonService.GetPokemon(name);
         return pokemon;
@@ -36,12 +36,10 @@ public class PokemonController : ControllerBase
         {
             try
             {
-                string param = $"text={WebUtility.UrlEncode(pokemon.Description).Replace("%0C", "%20").Replace("+", "%20").Replace("%0A", "%20")}";
+                string param = $"text={WebUtility.UrlEncode(pokemon.Description).Replace("%0C", "%20").Replace("+", "%20").Replace("%0A", "%20")}"; // todo: this could be done with regex
                 HttpResponseMessage res;
-                //HttpContent content = new StringContent(param, Encoding.UTF8, "application/json");
                                           
-                if (pokemon.Habitat.ToLower() == "cave" || pokemon.IsLegendary == true) //yoda          
-                        //res = await client.PostAsync(_urlTranslator + "yoda.json?" + param, content);
+                if (pokemon.Habitat.ToLower() == "cave" || pokemon.IsLegendary == true)          
                         res = await client.GetAsync(_urlTranslator + "yoda.json?" + param);
                     else
 
